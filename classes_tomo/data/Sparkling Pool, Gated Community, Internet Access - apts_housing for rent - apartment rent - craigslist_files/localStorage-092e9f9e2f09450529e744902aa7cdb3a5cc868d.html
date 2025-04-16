@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- saved from url=(0096)https://www.craigslist.org/static/www/localStorage-092e9f9e2f09450529e744902aa7cdb3a5cc868d.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript">
+        (function () {
+            var originRe = /^(https:\/\/[^/.]+\.craigslist\.org)(\/|$)/i;
+            var match = document.referrer.match(originRe);
+            if (!match) {
+                return;
+            }
+            var referrerOrigin = match[1];
+
+            var localStorage = false;
+            var localStorageIsAvailable = false;
+            try {
+                localStorage = window.localStorage;
+                localStorage.setItem('key', JSON.stringify('value'));
+                if (JSON.parse(localStorage.getItem('key')) === 'value') {
+                    localStorage.removeItem('key');
+                    if (localStorage.getItem('key') === null) {
+                        localStorageIsAvailable = true;
+                    }
+                }
+
+                if (!localStorageIsAvailable) {
+                    return;
+                }
+
+                window.addEventListener('message', function (e) {
+                    var match = e.origin.match(originRe);
+                    if(!match){
+                        return;
+                    }
+
+                    var data = JSON.parse(e.data);
+                    var messageAction = data.action;
+                    var messageData = data.data;
+                    if (referrerOrigin.indexOf(e.origin.toLowerCase()) === 0) {
+                        switch (messageAction) {
+                            case 'clear':
+                                localStorage.clear();
+                                return;
+
+                            case 'update':
+                                messageData.deleted.forEach(function (k) {
+                                    localStorage.removeItem(k);
+                                });
+                                Object.keys(messageData.updates).forEach(function (k) {
+                                    localStorage.setItem(k, messageData.updates[k]);
+                                });
+                                return;
+
+                            case 'set':
+                                localStorage.setItem(messageData.key, messageData.value);
+                                return;
+
+                            case 'remove':
+                                localStorage.removeItem(messageData.key);
+                        }
+                    }
+                });
+
+                var data = {};
+                for (var k, i = 0, end = localStorage.length; i < end; i++) {
+                    k = localStorage.key(i);
+                    data[k] = localStorage.getItem(k);
+                }
+                window.parent.postMessage(JSON.stringify({ action: 'init', data: data }), referrerOrigin);
+            } catch (e) {
+            }
+        })();
+    </script>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1231.0" data-gr-ext-installed="">
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false,&quot;isAlwaysAvailableAssistantEnabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
